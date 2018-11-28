@@ -14,6 +14,7 @@ import ChildProcessCrashedError from '../../../src/child-proxy/ChildProcessCrash
 describe(ChildProcessTestRunnerDecorator.name, () => {
   let sut: ChildProcessTestRunnerDecorator;
   let runnerOptions: RunnerOptions;
+  let plugins: string[];
   let childProcessProxyMock: {
     proxy: Mock<TestRunnerDecorator>;
     dispose: sinon.SinonStub;
@@ -31,14 +32,14 @@ describe(ChildProcessTestRunnerDecorator.name, () => {
     childProcessProxyCreateStub = sandbox.stub(ChildProcessProxy, 'create');
     childProcessProxyCreateStub.returns(childProcessProxyMock);
     runnerOptions = {
+      config: {},
       fileNames: [],
+      maxConcurrentRunners: 1,
       port: 42,
-      strykerOptions: {
-        plugins: ['foo-plugin', 'bar-plugin']
-      }
     };
+    plugins = ['foo-plugin', 'bar-plugin'];
     loggingContext = { port: 4200, level: LogLevel.Fatal };
-    sut = new ChildProcessTestRunnerDecorator('realRunner', runnerOptions, 'a working directory', loggingContext);
+    sut = new ChildProcessTestRunnerDecorator('realRunner', runnerOptions, plugins, 'a working directory', loggingContext);
   });
 
   it('should create the child process proxy', () => {

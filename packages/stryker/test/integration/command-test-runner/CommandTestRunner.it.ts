@@ -1,8 +1,7 @@
 import * as path from 'path';
 import { expect } from 'chai';
 import CommandTestRunner, { CommandRunnerSettings } from '../../../src/test-runner/CommandTestRunner';
-import { Config } from 'stryker-api/config';
-import { RunStatus, TestStatus } from 'stryker-api/test_runner';
+import { RunStatus, TestStatus, RunnerOptions } from 'stryker-api/test_runner';
 import * as objectUtils from '../../../src/utils/objectUtils';
 
 describe(`${CommandTestRunner.name} integration`, () => {
@@ -47,12 +46,15 @@ describe(`${CommandTestRunner.name} integration`, () => {
   });
 
   function createSut(settings?: CommandRunnerSettings) {
-    const strykerOptions = new Config();
+    const runnerOptions: RunnerOptions = {
+      config: {},
+      fileNames: [],
+      maxConcurrentRunners: 1,
+      port: 23,
+    };
     if (settings) {
-      strykerOptions.set({
-        commandRunner: settings
-      });
+      runnerOptions.config.commandRunner = settings;
     }
-    return new CommandTestRunner(workingDir, { strykerOptions, port: 23, fileNames: [] });
+    return new CommandTestRunner(workingDir, runnerOptions);
   }
 });

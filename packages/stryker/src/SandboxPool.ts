@@ -22,8 +22,10 @@ export default class SandboxPool {
       numConcurrentRunners--;
     }
     let numConcurrentRunnersSource = 'CPU count';
-    if (numConcurrentRunners > this.options.maxConcurrentTestRunners && this.options.maxConcurrentTestRunners > 0) {
-      numConcurrentRunners = this.options.maxConcurrentTestRunners;
+    const { maxConcurrentRunners } = this.options.testRunner.settings;
+
+    if (numConcurrentRunners > maxConcurrentRunners && maxConcurrentRunners > 0) {
+      numConcurrentRunners = maxConcurrentRunners;
       numConcurrentRunnersSource = 'maxConcurrentTestRunners config';
     }
     if (numConcurrentRunners <= 0) {

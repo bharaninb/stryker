@@ -220,3 +220,12 @@ function createErrnoException(errorCode: string) {
   fileNotFoundError.code = errorCode;
   return fileNotFoundError;
 }
+
+export const createTestRunnerConfig = (maxConcurrentRunners: number) => ({
+  name: '',
+  settings: {
+    config: {},
+    maxConcurrentRunners,
+    port: 0,
+  },
+});

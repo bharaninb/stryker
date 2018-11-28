@@ -19,7 +19,7 @@ import * as fileUtils from '../../src/utils/fileUtils';
 import currentLogMock from '../helpers/logMock';
 import TestRunnerDecorator from '../../src/test-runner/TestRunnerDecorator';
 import LoggingClientContext from '../../src/logging/LoggingClientContext';
-import { RunnerOptions } from 'stryker-api/test_runner';
+// import { RunnerOptions } from 'stryker-api/test_runner';
 
 const OVERHEAD_TIME_MS = 0;
 const LOGGING_CONTEXT: LoggingClientContext = Object.freeze({
@@ -44,7 +44,14 @@ describe('Sandbox', () => {
   let log: Mock<Logger>;
 
   beforeEach(() => {
-    options = { port: 43, timeoutFactor: 23, timeoutMS: 1000, testRunner: 'sandboxUnitTestRunner', symlinkNodeModules: true } as any;
+    options = {
+      symlinkNodeModules: true,
+      testRunner: {
+        name: 'sandboxUnitTestRunner', settings: { port: 43 }
+      },
+      timeoutFactor: 23,
+      timeoutMS: 1000,
+    } as any;
     testRunner = { init: sandbox.stub(), run: sandbox.stub().resolves(), dispose: sandbox.stub() };
     testFrameworkStub = {
       filter: sandbox.stub()
@@ -85,12 +92,11 @@ describe('Sandbox', () => {
 
     it('should have created the isolated test runner', async () => {
       await Sandbox.create(options, SANDBOX_INDEX, files, null, OVERHEAD_TIME_MS, LOGGING_CONTEXT);
-      const expectedSettings: RunnerOptions = {
+      const expectedSettings = {
         fileNames: [path.resolve('random-folder-3', 'file1'), path.resolve('random-folder-3', 'file2')],
         port: 46,
-        strykerOptions: options
       };
-      expect(ResilientTestRunnerFactory.create).to.have.been.calledWith(options.testRunner, expectedSettings, sandboxDirectory, LOGGING_CONTEXT);
+      expect(ResilientTestRunnerFactory.create).to.have.been.calledWith(options.testRunner.name, expectedSettings, options.plugins, sandboxDirectory, LOGGING_CONTEXT);
     });
 
     it('should have created a sandbox folder', async () => {

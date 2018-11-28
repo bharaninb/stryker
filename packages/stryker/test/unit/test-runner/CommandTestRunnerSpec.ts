@@ -4,8 +4,7 @@ import { expect } from 'chai';
 import CommandTestRunner, { CommandRunnerSettings } from '../../../src/test-runner/CommandTestRunner';
 import ChildProcessMock from '../../helpers/ChildProcessMock';
 import * as objectUtils from '../../../src/utils/objectUtils';
-import { Config } from 'stryker-api/config';
-import { RunStatus, TestStatus, RunResult } from 'stryker-api/test_runner';
+import { RunStatus, TestStatus, RunResult, RunnerOptions } from 'stryker-api/test_runner';
 import Timer, * as timerModule from '../../../src/utils/Timer';
 import { Mock, mock } from '../../helpers/producers';
 
@@ -123,13 +122,16 @@ describe(CommandTestRunner.name, () => {
   }
 
   function createSut(settings?: CommandRunnerSettings, workingDir = 'workingDir') {
-    const strykerOptions = new Config();
+    const runnerOptions: RunnerOptions = {
+      config: {},
+      fileNames: [],
+      maxConcurrentRunners: 1,
+      port: 23,
+    };
     if (settings) {
-      strykerOptions.set({
-        commandRunner: settings
-      });
+      runnerOptions.config.commandRunner = settings;
     }
-    return new CommandTestRunner(workingDir, { strykerOptions, port: 23, fileNames: [] });
+    return new CommandTestRunner(workingDir, runnerOptions);
   }
 
   function tick(): Promise<void> {

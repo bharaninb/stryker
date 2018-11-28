@@ -2,7 +2,7 @@ import { Config } from 'stryker-api/config';
 import * as path from 'path';
 import { getLogger } from 'stryker-api/logging';
 import * as mkdirp from 'mkdirp';
-import { RunResult, RunnerOptions } from 'stryker-api/test_runner';
+import { RunResult } from 'stryker-api/test_runner';
 import { File } from 'stryker-api/core';
 import { TestFramework } from 'stryker-api/test_framework';
 import { wrapInClosure, normalizeWhiteSpaces } from './utils/objectUtils';
@@ -113,13 +113,13 @@ export default class Sandbox {
   }
 
   private initializeTestRunner(): Promise<void> {
-    const settings: RunnerOptions = {
-      fileNames: Object.keys(this.fileMap).map(sourceFileName => this.fileMap[sourceFileName]),
-      port: this.options.port + this.index,
-      strykerOptions: this.options,
-    };
+
+    const { settings } = this.options.testRunner;
+    settings.fileNames = Object.keys(this.fileMap).map(sourceFileName => this.fileMap[sourceFileName]);
+    settings.port += this.index,
+
     this.log.debug(`Creating test runner %s using settings {port: %s}`, this.index, settings.port);
-    this.testRunner = ResilientTestRunnerFactory.create(settings.strykerOptions.testRunner || '', settings, this.workingDirectory, this.loggingContext);
+    this.testRunner = ResilientTestRunnerFactory.create(this.options.testRunner.name || '', settings, this.options.plugins, this.workingDirectory, this.loggingContext);
     return this.testRunner.init();
   }
 

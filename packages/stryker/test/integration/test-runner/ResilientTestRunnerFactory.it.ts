@@ -15,6 +15,7 @@ describe('ResilientTestRunnerFactory integration', () => {
 
   let sut: TestRunnerDecorator;
   let options: RunnerOptions;
+  let plugins: string[];
   const sandboxWorkingDirectory = path.resolve('./test/integration/test-runner');
   let loggingContext: LoggingClientContext;
 
@@ -27,16 +28,15 @@ describe('ResilientTestRunnerFactory integration', () => {
     loggingServer = new LoggingServer(port);
     loggingContext = { port, level: LogLevel.Trace };
     options = {
-      fileNames: [],
-      port: 0,
-      strykerOptions: {
-        plugins: [require.resolve('./AdditionalTestRunners')],
+      config: {
         port: 0,
         someRegex: /someRegex/,
-        testFramework: 'jasmine',
-        testRunner: 'karma'
-      }
+      },
+      fileNames: [],
+      maxConcurrentRunners: 1,
+      port: 0,
     };
+    plugins = [require.resolve('./AdditionalTestRunners')],
     alreadyDisposed = false;
   });
 
@@ -48,7 +48,7 @@ describe('ResilientTestRunnerFactory integration', () => {
   });
 
   function createSut(name: string) {
-    sut = ResilientTestRunnerFactory.create(name, options, sandboxWorkingDirectory, loggingContext);
+    sut = ResilientTestRunnerFactory.create(name, options, plugins, sandboxWorkingDirectory, loggingContext);
   }
 
   function arrangeSut(name: string): Promise<void> {

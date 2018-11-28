@@ -8,7 +8,7 @@ import Sandbox from '../../src/Sandbox';
 import SandboxPool from '../../src/SandboxPool';
 import { Task } from '../../src/utils/Task';
 import '../helpers/globals';
-import { Mock, config, file, mock, testFramework } from '../helpers/producers';
+import { Mock, config, file, mock, testFramework, createTestRunnerConfig } from '../helpers/producers';
 import LoggingClientContext from '../../src/logging/LoggingClientContext';
 import { sleep } from '../helpers/testUtils';
 
@@ -47,7 +47,7 @@ describe('SandboxPool', () => {
 
   describe('streamSandboxes', () => {
     it('should use maxConcurrentTestRunners when set', async () => {
-      options.maxConcurrentTestRunners = 1;
+      options.testRunner = createTestRunnerConfig(1);
       await sut.streamSandboxes().pipe(toArray()).toPromise();
       expect(Sandbox.create).to.have.callCount(1);
       expect(Sandbox.create).calledWith(options, 0, expectedInputFiles, expectedTestFramework, OVERHEAD_TIME_MS);
@@ -55,7 +55,7 @@ describe('SandboxPool', () => {
 
     it('should use cpuCount when maxConcurrentTestRunners is set too high', async () => {
       global.sandbox.stub(os, 'cpus').returns([1, 2, 3]); // stub 3 cpus
-      options.maxConcurrentTestRunners = 100;
+      options.testRunner = createTestRunnerConfig(100);
       const actual = await sut.streamSandboxes().pipe(toArray()).toPromise();
       expect(actual).lengthOf(3);
       expect(Sandbox.create).to.have.callCount(3);
@@ -64,7 +64,7 @@ describe('SandboxPool', () => {
 
     it('should use the cpuCount when maxConcurrentTestRunners is <= 0', async () => {
       global.sandbox.stub(os, 'cpus').returns([1, 2, 3]); // stub 3 cpus
-      options.maxConcurrentTestRunners = 0;
+      options.testRunner = createTestRunnerConfig(0);
       const actual = await sut.streamSandboxes().pipe(toArray()).toPromise();
       expect(Sandbox.create).to.have.callCount(3);
       expect(actual).lengthOf(3);
@@ -73,7 +73,7 @@ describe('SandboxPool', () => {
 
     it('should use the cpuCount - 1 when a transpiler is configured', async () => {
       options.transpilers = ['a transpiler'];
-      options.maxConcurrentTestRunners = 2;
+      options.testRunner = createTestRunnerConfig(2);
       global.sandbox.stub(os, 'cpus').returns([1, 2]); // stub 2 cpus
       const actual = await sut.streamSandboxes().pipe(toArray()).toPromise();
       expect(Sandbox.create).to.have.callCount(1);
